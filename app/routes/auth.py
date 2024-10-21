@@ -17,26 +17,25 @@ def create_role():
     db.session.commit()
     return jsonify({'message': 'Role created successfully'}), 201
 
-
 @bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
-    role_id = data.get('role_id') 
+    role_id = data.get('role_id')
 
     role = Role.query.get(role_id)
     if not role:
         return jsonify({'message': 'Role does not exist'}), 400
-    
+
     if User.query.filter_by(email=email).first():
         return jsonify({'message': 'User already exists'}), 400
 
     user = User(name=name, email=email, role_id=role_id)
     user.set_password(password)
-    db.session.add(user) 
-    db.session.commit() 
+    db.session.add(user)
+    db.session.commit()
     return jsonify({'message': 'User registered successfully'}), 201
 
 @bp.route('/login', methods=['POST'])
@@ -47,7 +46,6 @@ def login():
 
     user = User.query.filter_by(email=email).first()
     if user and user.check_password(password):
-        # Membuat token akses
         access_token = create_access_token(identity={'id': user.id, 'email': user.email, 'role': user.role.name})
         return jsonify({'access_token': access_token}), 200
 
@@ -76,9 +74,9 @@ def update_user(user_id):
     if not user:
         return jsonify({'message': 'User not found'}), 404
 
-    user.name = data['name']
-    user.email = data['email']
-    user.role_id = data['role_id']
+    user.name = data.get('name', user.name) 
+    user.email = data.get('email', user.email) 
+    user.role_id = data.get('role_id', user.role_id) 
     db.session.commit()
     return jsonify({'message': 'User updated successfully'}), 200
 
@@ -92,4 +90,3 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({'message': 'User deleted successfully'}), 200
-

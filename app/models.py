@@ -11,6 +11,7 @@ class Role(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     users = db.relationship('User', backref='role', lazy=True)
 
+
 class User(db.Model):
     __tablename__ = 'user'
 
@@ -20,16 +21,46 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=False)
 
-    # Metode untuk meng-hash password
     def set_password(self, password):
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    # Metode untuk memeriksa password
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password, password)
 
-    # Relasi ke Task
-    tasks = db.relationship('Task', backref='assigned_user', lazy=True)
+    # Relasi ke Mahasiswa dan Dosen
+    mahasiswa_profile = db.relationship('Mahasiswa', backref='user', uselist=False)  # One-to-One relationship
+    dosen_profile = db.relationship('Dosen', backref='user', uselist=False)          # One-to-One relationship
+
+
+class Mahasiswa(db.Model):
+    __tablename__ = 'mahasiswa'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    nim = db.Column(db.String(20), unique=True, nullable=False)
+
+    # Hapus relasi manual karena sudah ada di model User
+    # user = db.relationship('User', backref='mahasiswa_profile', lazy=True)
+
+
+class Dosen(db.Model):
+    __tablename__ = 'dosen'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    nip = db.Column(db.String(20), unique=True, nullable=False)
+
+    # Hapus relasi manual karena sudah ada di model User
+    # user = db.relationship('User', backref='dosen_profile', lazy=True)
+
+
+class Kelas(db.Model):
+    __tablename__ = 'kelas'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    tasks = db.relationship('Task', back_populates='kelas_assigned', lazy=True)
+
 
 class Project(db.Model):
     __tablename__ = 'project'
@@ -41,7 +72,6 @@ class Project(db.Model):
     end_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(50), nullable=False)
 
-    # Relasi ke Task
     tasks = db.relationship('Task', backref='project', lazy=True)
 
 class Task(db.Model):
@@ -49,12 +79,10 @@ class Task(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
-    assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    kelas_id = db.Column(db.Integer, db.ForeignKey('kelas.id'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), default='Belum Mulai')
     due_date = db.Column(db.Date, nullable=False)
 
-    # Relasi ke User
-    user = db.relationship('User', backref='tasks_list', lazy=True)  # Mengganti 'tasks' menjadi 'tasks_list' untuk menghindari konflik
-
+    kelas_assigned = db.relationship('Kelas', back_populates='tasks', lazy=True)
