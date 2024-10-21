@@ -27,9 +27,8 @@ class User(db.Model):
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password, password)
 
-    # Relasi ke Mahasiswa dan Dosen
-    mahasiswa_profile = db.relationship('Mahasiswa', backref='user', uselist=False)  # One-to-One relationship
-    dosen_profile = db.relationship('Dosen', backref='user', uselist=False)          # One-to-One relationship
+    mahasiswa_profile = db.relationship('Mahasiswa', backref='user', uselist=False)  
+    dosen_profile = db.relationship('Dosen', backref='user', uselist=False)          
 
 
 class Mahasiswa(db.Model):
@@ -39,9 +38,6 @@ class Mahasiswa(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     nim = db.Column(db.String(20), unique=True, nullable=False)
 
-    # Hapus relasi manual karena sudah ada di model User
-    # user = db.relationship('User', backref='mahasiswa_profile', lazy=True)
-
 
 class Dosen(db.Model):
     __tablename__ = 'dosen'
@@ -49,9 +45,6 @@ class Dosen(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     nip = db.Column(db.String(20), unique=True, nullable=False)
-
-    # Hapus relasi manual karena sudah ada di model User
-    # user = db.relationship('User', backref='dosen_profile', lazy=True)
 
 
 class Kelas(db.Model):

@@ -19,7 +19,6 @@ def get_all_tasks():
         'status': t.status,
         'due_date': t.due_date.strftime('%Y-%m-%d') if t.due_date else None,
         'project_name': t.project.name,
-        'kelas_name': t.kelas.name
     } for t in tasks]
     return jsonify(task_list)
 

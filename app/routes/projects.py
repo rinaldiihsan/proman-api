@@ -32,10 +32,6 @@ def get_projects():
                 'description': task.description,
                 'status': task.status,
                 'due_date': task.due_date.strftime('%Y-%m-%d'),
-                'kelas': {
-                    'id': task.kelas.id,
-                    'name': task.kelas.name
-                } if task.kelas else None
             } for task in project.tasks]
         }
         project_list.append(project_data)
